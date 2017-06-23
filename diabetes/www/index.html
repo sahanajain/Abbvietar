@@ -1,0 +1,373 @@
+<!doctype html> 
+<html lang="en"> 
+<head> 
+	<meta charset="UTF-8" />
+    <title>Phaser - Making your first game, part 6</title>
+    <script src="//cdn.jsdelivr.net/phaser/2.2.2/phaser.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+
+    <style type="text/css">
+        body {
+            margin: 0;
+        }
+        .modal-header {
+          background-color: #0BD6D1;
+          color:white !important;
+          text-align: center;
+          font-size: 30px;
+        }
+        .modal-body, .modal-footer {
+            background-color: #fffaf0;
+        }
+      
+    </style>
+</head>
+<body ng-app="myApp" ng-controller="myCtrl">
+<div class="container">
+
+  <!-- Modal -->
+  <div class="modal fade" id="myModal" role="dialog">
+    <div class="modal-dialog">
+    
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Current Glucose Level<i class="fa fa-heart-o" aria-hidden="true"></i></h4>
+        </div>
+        <div class="modal-body">
+          <p><input type="text" id="glucose Level" style="width:90%" ng-model="glucoseLevels"> mg/dl</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal" style="background-color:#F1ACCB ">Save</button>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+  
+  <!-- Modal -->
+  <div class="modal fade" id="modalFeed" role="dialog">
+    <div class="modal-dialog">
+    
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">What will Adam eat?<i class="fa fa-heart-o" aria-hidden="true"></i></h4>
+        </div>
+        <div class="modal-body">
+          <p><input type="text" id="food" style="width:65%" ng-model="searchedFood">            
+          <button type="button" class="btn btn-default" style="background-color:#F1ACCB; width:30% " ng-click = "search()">Search</button>
+          </p>
+          <div class="text-center">
+            <img ng-src={{boyImage}} class="rounded" alt="..." id="boy">
+            <div id = "foodDetails">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-success" data-dismiss="modal" style="background-color:green ">Feed Anyways</button>
+          <button type="button" class="btn btn-error" data-dismiss="modal" style="background-color:red ">Cancel</button>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+  
+  <!-- Modal -->
+  <div class="modal fade" id="modalExercise" role="dialog">
+    <div class="modal-dialog">
+    
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Vitals<i class="fa fa-heart-o" aria-hidden="true"></i></h4>
+        </div>
+        <div class="modal-body">
+          <div class="text-center">
+            <div id ="glucoseLevels">Glucose Level: {{glucoseLevels}}</div><br>
+            <div id ="heartRate">Heart Rate: 55 beats/minute</div><br>
+            <div id = "steps">Steps Taken: {{steps}}</div><br>
+            <br>
+            <div id="exerciseText" ng-model="exerciseText"></div>
+          </div>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+    
+ <!-- Modal -->
+  <div class="modal fade" id="modalChart" role="dialog">
+    <div class="modal-dialog">
+    
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Glucose Data<i class="fa fa-heart-o" aria-hidden="true"></i></h4>
+        </div>
+        <div class="modal-body">
+            <canvas id="line-chart" width="800" height="450"></canvas>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+  
+<script type="text/javascript">
+var app = angular.module("myApp", []); 
+app.controller("myCtrl", function($scope) {
+    $scope.boyImage = 'assets/happyBoy.png';
+$scope.foods = {
+    "Cheese Cake": {
+        "carbs": 32
+    },
+    "crackers": {
+        "carbs": 10
+    },
+    "cereal": {
+        "carbs": 55
+    },
+    "Brown Rice": {
+        "carbs": 10
+    },
+    "Nuts":{
+        "carbs": 28
+    },
+    "Olives":{
+        "carbs": 14
+    },
+    "Bananas":{
+       "carbs": 27 
+    },
+    "Sugar":{
+       "carbs": 99.8
+    },
+    "French fries":{
+       "carbs": 41
+    },
+    "Cherry Pie":{
+       "carbs": 39
+    },
+    "energy bars":{
+       "carbs": 70
+    },
+    "Bagel":{
+       "carbs": 49
+    },
+    "strawberry":{
+       "carbs": .9
+    },
+    "Coke":{
+       "carbs": 0
+    },
+    "burger":{
+       "carbs": 29
+    },
+    "beer":{
+       "carbs": 13
+    },
+    "broccli":{
+       "carbs": 10
+    },
+    "bacon":{
+       "carbs": 2
+    },
+    "corn":{
+       "carbs": 123
+    },
+    "turkey":{
+       "carbs": 2
+    },
+    "beef":{
+       "carbs": 0
+    },
+    "yogurt":{
+       "carbs": 7
+    },
+    "bacon":{
+       "carbs": 2
+    },
+    "corn":{
+       "carbs": 123
+    },
+    "turkey":{
+       "carbs": 2
+    }
+}
+  $scope.steps = 774;
+    var game = new Phaser.Game(375, 645, Phaser.AUTO, 'phaser-example', { preload: preload, create: create, update: update });
+
+function preload() {
+
+    game.load.image('home', 'assets/room.png');
+    game.load.image('sky', 'assets/sky.png');
+    game.load.spritesheet('mummy', 'assets/walking_final.png', 33, 75, 7);
+    game.load.spritesheet('jumpingBoy', 'assets/Jumping_final.png', 75,75, 10);
+    game.load.spritesheet('buttonVitals', 'assets/heartFinal.png', 193, 71);
+    game.load.spritesheet('buttonFeed', 'assets/foodBowl1.png', 193, 71);
+    game.load.spritesheet('buttonExercise', 'assets/dumbBell.png', 193, 71);
+    game.load.spritesheet('buttonSettings', 'assets/gearBorder.png', 193, 71);
+    game.load.spritesheet('buttonHome', 'assets/homeButton.png', 193, 71);
+    game.load.image('kitchen', 'assets/kitchen (1).png');
+    
+
+}
+
+var back;
+var mummy;
+var anim;
+var loopText;
+var button;
+
+function create() {
+
+    back = game.add.image(0, -300, 'home');
+    back.scale.set(2);
+    back.smoothed = false;
+
+    mummy = game.add.sprite(200, 360, 'mummy', 20);
+    mummy.scale.set(4);
+    mummy.smoothed = false;
+    anim = mummy.animations.add('walk');
+
+    anim.onLoop.add(animationLooped, this);
+    
+    buttonHome = game.add.button(0, 565, 'buttonHome', actionOnClickHome, this, 2, 1, 0);
+    buttonVitals = game.add.button(75, 565, 'buttonVitals', actionOnClickVitals, this, 2, 1, 0);
+    buttonFeed = game.add.button(150, 565, 'buttonFeed', actionOnClickFeed, this, 2, 1, 0);
+    buttonExercise = game.add.button(225, 565, 'buttonExercise', actionOnClickExercise, this, 2, 1, 0);
+    buttonSettings = game.add.button(300, 565, 'buttonSettings', actionOnClickSettings, this, 2, 1, 0);
+
+}
+
+function animationLooped(sprite, animation) {
+        animation.loop = false;
+}
+
+function update() {
+    if (anim.isPlaying)
+    {
+        back.x -= 1;
+    }
+    else
+    {
+      back.x = 0;
+    }
+
+}
+function actionOnClickVitals () {
+    $("#myModal").modal();
+
+}
+
+function actionOnClickFeed(){
+    mummy.loadTexture('mummy', 0);
+    anim = mummy.animations.add('walk');
+    anim.onLoop.add(animationLooped, this);
+    $scope.selectedFoods = "";
+
+    $("#modalFeed").modal();
+    back.loadTexture('kitchen');
+    anim.play(10, true);
+}
+
+$('#modalFeed').on('hidden.bs.modal', function () {
+  // do something…
+    $('#foodDetails').text(""); 
+    $scope.boyImage = 'assets/happyBoy.png';
+})
+    
+function actionOnClickExercise(){
+  $scope.steps += 10;
+    back.loadTexture('sky');
+    mummy.loadTexture('jumpingBoy', 0);
+
+    mummy.animations.add('run');
+
+    mummy.animations.play('run', 30, true);
+    
+    var glucoseLevel = $scope.glucoseLevels;
+    
+    var steps = $scope.steps;
+    
+    if($scope.glucoseLevels < 80){
+        $scope.exerciseText = "Your glucose levels seem very low try eating something before you exercise."
+    } else{
+        $scope.exerciseText = "Looks like you could use some more exercise today, why don't you try playing outside with your friends or riding your bike."
+    }
+    
+    
+    $('#exerciseText').text($scope.exerciseText); 
+    $("#modalExercise").modal();
+  
+}
+
+function actionOnClickHome(){
+    mummy.loadTexture('mummy', 0);
+    anim = mummy.animations.add('walk');
+    anim.onLoop.add(animationLooped, this);
+   // anim.isPlaying = false;
+    back.loadTexture('home');
+    anim.play(10, true);
+}
+
+function actionOnClickSettings(){
+    $("#modalChart").modal();
+}
+
+$scope.search = function(){
+    var carbs = $scope.foods[$scope.searchedFood]['carbs'] * 1.4;
+    var steps = $scope.steps/109;
+    var glucoselevels = $scope.glucoseLevels;
+    var finalGlucoseLevel = parseInt(glucoselevels)+ parseInt(carbs) - parseInt(steps);
+    if(finalGlucoseLevel < 130){
+            $scope.boyImage = 'assets/sadBoy.png';
+
+        $('#foodDetails').text("Your glucose levels seem low, try feeding your avatar something with more glucose in it, like bread or even pasta!"); 
+    }
+    if(finalGlucoseLevel>130 && finalGlucoseLevel<180){
+            $scope.boyImage = 'assets/happyBoy.png';
+        $('#foodDetails').text("This seems like a good option. Good job keeping your avatar happy!"); 
+    }
+    if(finalGlucoseLevel >180){
+            $scope.boyImage = 'assets/sadBoy.png';
+        $('#foodDetails').text("Your glucose levels are already too high! Try eating something with less carbs in it, like fruits or vegetables."); 
+
+    }
+}
+
+new Chart(document.getElementById("line-chart"), {
+  type: 'line',
+  data: {
+    labels: ["Day 1", "Day 2", "Day 3", "Day 4", "Day 5", "Day 6", "Day 7", "Day 8", "Day 9","Day 10"],
+    datasets: [{ 
+        data: [100,170,172,130,120,130,165,165,120,140],
+        label: "Adam",
+        borderColor: "#3e95cd",
+        fill: false
+      }
+    ]
+  },
+  options: {
+    title: {
+      display: true,
+      text: 'Glucose Levels in the last '
+    }
+  }
+});
+});
+
+
+</script>
+</div>
+</body>
+</html>
